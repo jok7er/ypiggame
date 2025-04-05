@@ -161,7 +161,13 @@
                 setTimeout(() => fire.remove(), 1000);
             }, 300);
         }
-
+        // 增加缓冲检测
+       const bgm = document.getElementById('bgm');
+       bgm.addEventListener('progress', () => {
+         if (bgm.buffered.length > 0) {
+           console.log(`已缓冲: ${(bgm.buffered.end(0)/bgm.duration*100).toFixed(1)}%`);
+         }
+       });
         // 爆炸动画
         const style = document.createElement('style');
         style.textContent = `
