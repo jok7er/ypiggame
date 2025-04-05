@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a1a;
+            margin: 0;
+            font-family: 'Microsoft Yahei';
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 70vh;
+        }
+
+        h1 {
+            color: #ff69b4;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 0 10px rgba(255,105,180,0.5);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: absolute;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        #yesBtn {
+            background: #ff69b4;
+            color: white;
+            left: 45%;
+        }
+
+        #noBtn {
+            background: #87ceeb;
+            color: white;
+            left: 55%;
+        }
+
+        .end-message {
+            display: none;
+            font-size: 40px;
+            color: #ff1493;
+            text-align: center;
+            animation: neon 1s infinite;
+        }
+
+        @keyframes neon {
+            0%, 100% { text-shadow: 0 0 10px #ff69b4; }
+            50% { text-shadow: 0 0 20px #ff69b4; }
+        }
+
+        #musicTip {
+            position: fixed;
+            top: 20px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div id="musicTip">🎵 点击激活音乐</div>
+    <h1>杨惠鳞是不是pig？🐷</h1>
+    <div class="container">
+        <button id="yesBtn" class="btn" onclick="showConfession()">是</button>
+        <button id="noBtn" class="btn" onclick="moveButton()">不是</button>
+    </div>
+    <div class="end-message">你终于承认啦！🎉</div>
+
+    <audio id="bgm" loop>
+        <source src="./xx.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 自动播放逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            const bgm = document.getElementById('bgm');
+            const noBtn = document.getElementById('noBtn');
+            // 尝试自动播放
+            bgm.play().catch(error => {
+                // 如果自动播放被阻止
+                console.log('自动播放被阻止，等待用户交互...');
+                document.body.innerHTML += `
+                    <div id="musicTip" style="position:fixed; top:20px; color:white; background:rgba(0,0,0,0.7); padding:10px 20px; border-radius:25px;">
+                        点击任意位置激活音乐
+                    </div>
+                `;
+                
+                // 用户首次点击后激活
+                document.addEventListener('click', () => {
+                    bgm.muted = false;
+                    bgm.play();
+                    document.getElementById('musicTip')?.remove();
+                }, { once: true });
+            });
+
+            // 5秒后尝试解除静音
+            setTimeout(() => bgm.muted = false, 5000);
+        });
+
+
+        // 按钮功能
+        
+        let moveCount = 0;
+
+        function getRandomPosition() {
+            const container = document.querySelector('.container');
+            return {
+                x: Math.random() * (container.offsetWidth - noBtn.offsetWidth),
+                y: Math.random() * (container.offsetHeight - noBtn.offsetHeight)
+            };
+        }
+
+        const moveButton = function() {
+            const container = document.querySelector('.container');
+            const newX = Math.random() * (container.offsetWidth - noBtn.offsetWidth);
+            const newY = Math.random() * (container.offsetHeight - noBtn.offsetHeight);
+            
+            noBtn.style.left = `${newX}px`;
+            noBtn.style.top = `${newY}px`;
+            noBtn.style.transform = `rotate(${moveCount++ * 45}deg)`;
+        };
+
+        function showConfession() {
+            document.querySelector('.container').remove();
+            document.querySelector('h1').remove();
+            document.querySelector('.end-message').style.display = 'block';
+            
+            // 烟花效果
+            setInterval(() => {
+                const fire = document.createElement('div');
+                fire.style.cssText = `
+                    position: fixed;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background: ${['#ff69b4','#87ceeb','#ffd700'][Math.floor(Math.random()*3)]};
+                    animation: explode 1s forwards;
+                `;
+                document.body.appendChild(fire);
+                setTimeout(() => fire.remove(), 1000);
+            }, 300);
+        }
+
+        // 爆炸动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes explode {
+                0% { transform: scale(1); opacity: 1; }
+                100% { transform: scale(12); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
